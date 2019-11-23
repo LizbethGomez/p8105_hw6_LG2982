@@ -51,7 +51,7 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
 
-# Data import and cleaning:
+# Problem 1:
 
   - Load and clean the data for regression analysis:
 
@@ -198,3 +198,114 @@ crossv_mc(birth, 100)  %>%
 
 *Based on the plot, we see that model 1 has the lowest RMSE, so we
 conclude that it fits the data better than model 2 and model 3*
+
+# Problem 2:
+
+  - Load and clean data
+
+<!-- end list -->
+
+``` r
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+    ## Registered S3 method overwritten by 'crul':
+    ##   method                 from
+    ##   as.character.form_file httr
+
+    ## Registered S3 method overwritten by 'hoardr':
+    ##   method           from
+    ##   print.cache_info httr
+
+    ## file path:          /Users/lizbethgomez/Library/Caches/rnoaa/ghcnd/USW00094728.dly
+
+    ## file last updated:  2019-09-26 10:36:26
+
+    ## file min/max dates: 1869-01-01 / 2019-09-30
+
+``` r
+boot_sample = function(df) {
+  sample_frac(df, replace = TRUE)
+}
+
+boots = data_frame(
+  strap_number = 1:5000,
+  strap_sample = rerun(5000, boot_sample(weather_df))
+)
+
+boots_results = boots %>%
+  mutate(models = map(strap_sample, ~lm(tmax ~ tmin, data = .x)),
+         results_glance =  map(models, broom::glance),
+         result_tidy = map(models, broom::tidy)
+         ) %>%
+  select(-strap_sample, -models) %>%
+  unnest() %>%
+  select(strap_number, r.squared, term, estimate) %>%
+  pivot_wider(names_from = "term",
+              values_from = "estimate") %>%
+  janitor::clean_names() %>%
+  mutate(logB = log(intercept * tmin))
+  
+
+boots_results %>%
+  summarise("R^2" = mean(r_squared),
+            "Log(B0 * B1)" = mean(logB)) %>%
+  knitr::kable(digits = 3)
+```
+
+|   R^2 | Log(B0 \* B1) |
+| ----: | ------------: |
+| 0.912 |         2.013 |
+
+``` r
+r_squared= boots_results %>%
+  ggplot(aes(x = r_squared)) +
+  geom_histogram(alpha = 0.6, color = "peru") +
+  xlab("R^2 estimate") 
+
+
+log= boots_results %>%
+  ggplot(aes(x = logB)) +
+  geom_histogram(alpha = 0.6, color = "peru") +
+  xlab("Log of Parameter")
+```
+
+*These histograms above show that the distributions of our R squared and
+log parameter product estimates are normally distributed around 0.912
+and 2.013, respectively*
+
+  - Identify quantieles:
+
+<!-- end list -->
+
+``` r
+quantile(pull(boots_results, r_squared), probs = c(.025, .975)) %>% 
+    knitr::kable(digits = 3)
+```
+
+|       |     x |
+| ----- | ----: |
+| 2.5%  | 0.894 |
+| 97.5% | 0.927 |
+
+``` r
+quantile(pull(boots_results, logB), probs = c(.025, .975)) %>% 
+    knitr::kable(digits = 3)
+```
+
+|       |     x |
+| ----- | ----: |
+| 2.5%  | 1.965 |
+| 97.5% | 2.060 |
+
+*2.5% and 97.5% quantiles shown above*
