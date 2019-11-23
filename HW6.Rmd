@@ -1,0 +1,12 @@
+---
+title: "p8105_hw6_LG2982"
+author: "Lizbeth Gomez"
+date: "11/22/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
