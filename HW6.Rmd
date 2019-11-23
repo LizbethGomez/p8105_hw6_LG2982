@@ -175,7 +175,8 @@ log= boots_results %>%
   ggplot(aes(x = logB)) +
   geom_histogram(alpha = 0.6, color = "peru") +
   xlab("Log of Parameter")
-
+r_squared
+log
 
 ```
  
