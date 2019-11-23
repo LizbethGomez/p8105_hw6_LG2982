@@ -10,3 +10,61 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+```{r}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+
+```
+
+# Data import and cleaning:
+  - Load and clean the data for regression analysis:
+
+```{r}
+birth = read_csv("./data/birthweight.csv") %>% 
+  mutate(babysex = recode(babysex, 
+                          "1" = "Male",
+                          "2" = "Female"),
+         fincome = fincome * 100,
+         frace = recode(frace,
+                        "1" = "White",
+                        "2" = "Black",
+                        "3" = "Asian",
+                        "4" = "Puetro Rican",
+                        "8" = "Other",
+                        "9" = "Unknown"),
+         malform = recode(malform, 
+                          "0" = "Yes",
+                          "1" = "No"
+                          ),
+         mrace = recode(mrace,
+                        "1" = "White",
+                        "2" = "Black",
+                        "3" = "Asian",
+                        "4" = "Puetro Rican",
+                        "8" = "Other")
+         ) 
+sum(is.na(birth))
+```
+ *There are no missing values in this dataset*
+ 
+  - Propose a regression model for birthweight. 
+```{r}
+
+```
+
+
+
