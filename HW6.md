@@ -278,7 +278,20 @@ log= boots_results %>%
   ggplot(aes(x = logB)) +
   geom_histogram(alpha = 0.6, color = "peru") +
   xlab("Log of Parameter")
+r_squared
 ```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+<img src="HW6_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
+
+``` r
+log
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+<img src="HW6_files/figure-gfm/unnamed-chunk-7-2.png" width="90%" />
 
 *These histograms above show that the distributions of our R squared and
 log parameter product estimates are normally distributed around 0.912
@@ -306,6 +319,6 @@ quantile(pull(boots_results, logB), probs = c(.025, .975)) %>%
 |       |     x |
 | ----- | ----: |
 | 2.5%  | 1.965 |
-| 97.5% | 2.060 |
+| 97.5% | 2.058 |
 
 *2.5% and 97.5% quantiles shown above*
